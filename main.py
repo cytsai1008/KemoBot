@@ -2,6 +2,7 @@ import os #for replit
 import discord
 import queue
 import yt_dlp
+import website
 
 intents = discord.Intents.all()
 client = discord.Client(intents = intents)
@@ -102,4 +103,5 @@ async def on_message(message):
     await message.channel.send(text)
     
 
+website.alive()
 client.run(os.environ["TOKEN"])
