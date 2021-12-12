@@ -43,7 +43,12 @@ def playnext(error = None):
   if(not music_list.empty()):
     song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("song.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
-
+  else:
+    try:
+      if(os.path.exists("song.mp3")):
+        os.remove("song.mp3")
+    except:
+      pass
 
 @client.event
 async def on_ready():
