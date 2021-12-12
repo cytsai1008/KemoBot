@@ -17,21 +17,26 @@ myvoice = voice(None, None)
 music_list = queue.Queue()
 
 
-def music_download(url: str) -> str:
-  url = url.split("&")[0]
-  ydl_opts = {
-      "format": "bestaudio/best",
-      "postprocessors": [{
-        "key": "FFmpegExtractAudio",
-        "preferredcodec": "mp3",
-        "preferredquality": "192",
-      }],
-    }
-  with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    ydl.download([url])
-  for file in os.listdir("./"):
-    if file.endswith(".mp3"):
-      os.rename(file, "song.mp3")
+def music_download(url: str) -> bool:
+  #return True if noting went wrong
+  try:
+    url = url.split("&")[0]
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "postprocessors": [{
+          "key": "FFmpegExtractAudio",
+          "preferredcodec": "mp3",
+          "preferredquality": "192",
+        }],
+      }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+      ydl.download([url])
+    for file in os.listdir("./"):
+      if file.endswith(".mp3"):
+        os.rename(file, "song.mp3")
+    return True
+  except:
+    return False
 
 
 def playnext(error = None):
@@ -71,7 +76,9 @@ async def on_message(message):
       await message.channel.send("Music queued!")
       return
 
-    music_download(value)
+    if(not music_download(value)):
+      await message.channel.send("Faild to download the music, sumimasen ;w;")
+      return
     
     myvoice.channel = message.author.voice.channel
     if(myvoice.client is None or not myvoice.client.is_connected()):
