@@ -1,4 +1,4 @@
-import os #for replit
+import os
 import discord
 import queue
 import yt_dlp
@@ -15,6 +15,11 @@ class voice:
 
 myvoice = voice(None, None)
 music_list = queue.Queue()
+
+
+def music_list_clear():
+  with music_list.mutex:
+      music_list.queue.clear()
 
 
 def music_download(url: str) -> bool:
@@ -41,6 +46,7 @@ def music_download(url: str) -> bool:
 
 def playnext(error = None):
   if(not music_list.empty()):
+    music_download(music_list.get())
     song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("song.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
   else:
@@ -73,16 +79,20 @@ async def on_message(message):
 
   if(command == "play"):
     if(value == ""):
-      await message.channel.send("Empty url.")
+      await message.channel.send("urlを提供するのを忘れちゃいました！")
+      return
+
+    if(message.author.voice is None):
+      await message.channel.send("それを行うにはボイスチャンネルに入るのが必要です。")
       return
 
     if(not myvoice.client is None and myvoice.client.is_playing()):
       music_list.put(value)
-      await message.channel.send("Music queued!")
+      await message.channel.send("キューに追加済み！")
       return
 
     if(not music_download(value)):
-      await message.channel.send("Faild to download the music, sumimasen ;w;")
+      await message.channel.send("この曲のダウンロードに失敗しました。すみません。;w;")
       return
     
     myvoice.channel = message.author.voice.channel
@@ -99,13 +109,15 @@ async def on_message(message):
     myvoice.client.resume()
 
   elif(command == "stop" and myvoice.client.is_playing()):
+    music_list_clear()
     myvoice.client.stop()
 
   elif(command == "skip" and myvoice.client.is_playing()):
     myvoice.client.stop()
-    playnext()
 
-  elif(command == "leave" and myvoice.client.is_connected()):
+  elif(command == "leave" and not myvoice.client is None):
+    music_list_clear()
+    myvoice.client.stop()
     await myvoice.client.disconnect()
 
   elif(command == "help"):
