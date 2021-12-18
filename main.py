@@ -46,9 +46,9 @@ def music_download(url: str) -> bool:
 
 def playnext(error = None):
   if(not music_list.empty()):
-    music_download(music_list.get())
-    song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
-    myvoice.client.play(song, after=playnext)
+    if(music_download(music_list.get())):
+      song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
+      myvoice.client.play(song, after=playnext)
   else:
     try:
       if(os.path.exists("music.mp3")):
@@ -85,24 +85,19 @@ async def on_message(message):
     if(value == ""):
       await message.channel.send("urlを提供するのを忘れちゃいました！")
       return
-
     if(message.author.voice is None):
       await message.channel.send("それを行うにはボイスチャンネルに入るのが必要です。")
       return
-
     if(not myvoice.client is None and myvoice.client.is_playing()):
       music_list.put(value)
       await message.channel.send("キューに追加済み！")
       return
-
     if(not music_download(value)):
       await message.channel.send("この曲のダウンロードに失敗しました。すみません。;w;")
       return
-    
     myvoice.channel = message.author.voice.channel
     if(myvoice.client is None or not myvoice.client.is_connected()):
       myvoice.client = await myvoice.channel.connect()
-
     song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
 
