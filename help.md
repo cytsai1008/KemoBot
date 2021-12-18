@@ -1,7 +1,8 @@
-**?play [youtube url]** for playing music<br/>
-**?skip** for skipping music<br/>
-**?pause** for pausing<br/>
-**?resume** for resuming<br/>
-**?stop** for stopping<br/>
-**?leave** for telling the bot to leave<br/>
-And for now, please try not to play a song that longer that 10mins, or you might have to wait forever.
+**?play [YouTube url]** 音楽を再生する
+**?skip** 音楽をスキップする
+**?pause** 音楽再生を一時停止する
+**?resume** 音楽再生を再開する
+**?stop** 音楽を停止し、キューをクリアする
+**?leave** botを退室させる
+**?help** コマンド一覧
+10分以上の曲は再生しないようにしてください。ずっと真夜中に彷徨うことがあるから。

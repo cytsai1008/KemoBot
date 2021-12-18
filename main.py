@@ -38,7 +38,7 @@ def music_download(url: str) -> bool:
       ydl.download([url])
     for file in os.listdir("./"):
       if file.endswith(".mp3"):
-        os.rename(file, "song.mp3")
+        os.rename(file, "music.mp3")
     return True
   except:
     return False
@@ -47,14 +47,15 @@ def music_download(url: str) -> bool:
 def playnext(error = None):
   if(not music_list.empty()):
     music_download(music_list.get())
-    song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("song.mp3"), myvoice.volume)
+    song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
   else:
     try:
-      if(os.path.exists("song.mp3")):
-        os.remove("song.mp3")
+      if(os.path.exists("music.mp3")):
+        os.remove("music.mp3")
     except:
       pass
+
 
 @client.event
 async def on_ready():
@@ -70,7 +71,7 @@ async def on_message(message):
   value: str = ""
 
   if(message.content.startswith("?") and len(message.content) > 1):
-    content: list = message.content[1:].split(" ")
+    content: list = message.content[1:].split(" ", 1)
     command = content[0]
     if(len(content) > 1):
       value = content[1]
@@ -99,7 +100,7 @@ async def on_message(message):
     if(myvoice.client is None or not myvoice.client.is_connected()):
       myvoice.client = await myvoice.channel.connect()
 
-    song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("song.mp3"), myvoice.volume)
+    song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
 
   elif(command == "pause" and myvoice.client.is_playing()):
@@ -120,6 +121,10 @@ async def on_message(message):
     myvoice.client.stop()
     await myvoice.client.disconnect()
 
+  elif(command == "game"):
+    game = discord.Game(value)
+    await client.change_presence(status=discord.Status.online, activity=game)
+    
   elif(command == "help"):
     file = open("help.md")
     text = file.read()
