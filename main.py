@@ -67,6 +67,9 @@ async def on_message(message):
   if(message.author == client.user):
     return #Prevent self-replying
 
+  if(f"<@!{client.user.id}>" in message.content):
+    await message.channel.send("omg i got mentioned (/ω＼)")
+
   command: str = ""
   value: str = ""
 
