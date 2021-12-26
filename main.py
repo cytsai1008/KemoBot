@@ -150,7 +150,7 @@ async def on_message(message):
     await client.change_presence(status=discord.Status.online, activity=game)
     
   elif(command == "help"):
-    file = open("help.md")
+    file = open("readme.md")
     text = file.read()
     file.close()
     await message.channel.send(text)
