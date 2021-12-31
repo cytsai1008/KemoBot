@@ -74,12 +74,14 @@ async def on_message(message):
   if(f"<@!{client.user.id}>" in message.content):
     await message.channel.send("omg i got mentioned (/ω＼)")
 
+  is_command: bool = (message.content.startswith("?") or message.content.startswith("？"))
   command: str = ""
   value: str = ""
   has_voice_client: bool = (not myvoice.client is None and myvoice.client.is_connected())
   same_voice_channel: bool = (not message.author.voice is None and myvoice.voice_ch == message.author.voice.channel)
 
-  if(message.content.startswith("?") and len(message.content) > 1):
+  
+  if(is_command and len(message.content) > 1):
     content: list = message.content[1:].split(" ", 1)
     command = content[0]
     if(len(content) > 1):
@@ -103,16 +105,20 @@ async def on_message(message):
   elif(command == "play"):
     if(value == ""):
       await message.channel.send("urlを提供するのを忘れちゃいました！")
+      await message.add_reaction("⚠")
       return
     if(message.author.voice is None):
       await message.channel.send("それを行うにはボイスチャンネルに入るのが必要です。")
+      await message.add_reaction("⚠")
       return
     if(has_voice_client and not same_voice_channel and myvoice.client.is_playing()):
       await message.channel.send("Sorry, but I'm playing music on another channel.")
+      await message.add_reaction("⚠")
       return
     if(has_voice_client and myvoice.client.is_playing()):
       music_list.put(value)
       await message.channel.send("キューに追加済み！")
+      await message.add_reaction("✅")
       return
     if(not has_voice_client):
       myvoice.voice_ch = message.author.voice.channel
@@ -123,7 +129,9 @@ async def on_message(message):
       myvoice.client = await myvoice.voice_ch.connect()
     if(not music_download(value)):
       await message.channel.send("この曲のダウンロードに失敗しました。すみません。;w;")
+      await message.add_reaction("❌")
       return
+    await message.add_reaction("✅")
     song = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music.mp3"), myvoice.volume)
     myvoice.client.play(song, after=playnext)
 
